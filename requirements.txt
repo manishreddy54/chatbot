@@ -1,0 +1,9 @@
+Flask
+flask_cors
+langchain
+langchain_groq
+langchain_huggingface
+langchain_community
+chromadb
+huggingface_hub
+gunicorn

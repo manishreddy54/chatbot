@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MyChiropractic Clinic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://unpkg.com/@stylus-ui/core@latest/dist/stylus-ui.min.css">
+  <style>
+    body { background: #f7f8fa; font-family: 'Segoe UI', Arial, sans-serif; }
+    .chat-container { max-width: 480px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 12px #0001; padding: 24px; }
+    .chat-title { text-align: center; font-size: 1.7em; margin-bottom: 16px; color: #2a6d6d; }
+    .chat-messages { min-height: 200px; margin-bottom: 16px; }
+    .bot { color: #2a6d6d; margin-bottom: 10px; }
+    .user { color: #444; text-align: right; margin-bottom: 10px; }
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input-row input { flex: 1; }
+  </style>
+</head>
+<body>
+  <div class="chat-container stylus-card">
+    <div class="chat-title">MyChiropractic Clinic</div>
+    <div id="chat-messages" class="chat-messages"></div>
+    <form id="chat-form" class="chat-input-row">
+      <input id="user-input" type="text" placeholder="Type your question..." autocomplete="off" required class="stylus-input" />
+      <button type="submit" class="stylus-btn stylus-btn-primary">Send</button>
+    </form>
+  </div>
+  <script>
+    const chatMessages = document.getElementById('chat-messages');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+    let sessionId = 'user-session-1';
+
+    function appendMessage(sender, text) {
+      const div = document.createElement('div');
+      div.className = sender;
+      div.textContent = (sender === 'user' ? "You: " : "Bot: ") + text;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const question = userInput.value.trim();
+      if (!question) return;
+      appendMessage('user', question);
+      userInput.value = '';
+      appendMessage('bot', '...');
+      const res = await fetch('http://localhost:8000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, session_id: sessionId })
+      });
+      const data = await res.json();
+      // Remove the loading '...'
+      chatMessages.lastChild.remove();
+      appendMessage('bot', data.answer);
+    });
+  </script>
+</body>
+</html>
